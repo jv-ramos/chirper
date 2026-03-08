@@ -28,17 +28,22 @@ class ChirpController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
-        // Validate the request
-        $validade = $request->validate(['message' => 'required|string|max:255']);
-
-        \App\Models\Chirp::create([
-            'message' => $validade['message'],
-            'user_id' => null, // We'll add auithentication in lesson 11
+        $validated = $request->validate([
+            'message' => 'required|string|max:255',
+        ], [
+            'message.required' => 'Please write something to chirp!',
+            'message.max' => 'Chirps must be 255 characters or less.',
         ]);
 
-        return redirect('/')->with('success', 'Chirp created!');
+        \App\Models\Chirp::create([
+            'message' => $validated['message'],
+            'user_id' => null,
+        ]);
+
+        return redirect('/')->with('success', 'Your chirp has been posted!');
     }
 
     /**
