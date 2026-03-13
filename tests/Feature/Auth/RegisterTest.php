@@ -56,8 +56,23 @@ describe('Register', function () {
         expect(\Hash::check('password123', $user->password))->toBeTrue();
     });
 
+    /*
+    / FAILING TESTS
+    */
     it('fails when name is not provided', function () {
         $response = $this->post('/register', [
+            'email'                 => 'john@example.com',
+            'password'              => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertSessionHasErrors('name');
+        $this->assertGuest();
+    });
+
+    it('fails when name is longer than 255 characters', function () {
+        $response = $this->post('/register', [
+            'name'                  => str_repeat('o', 256),
             'email'                 => 'john@example.com',
             'password'              => 'password123',
             'password_confirmation' => 'password123',
@@ -89,6 +104,7 @@ describe('Register', function () {
         ]);
 
         $response->assertSessionHasErrors('email');
+        $this->assertGuest();
     });
 
     it('fails when password is shorter than 8 characters', function () {
@@ -100,6 +116,7 @@ describe('Register', function () {
         ]);
 
         $response->assertSessionHasErrors('password');
+        $this->assertGuest();
     });
 
     it('fails when password confirmation does not match', function () {
@@ -111,6 +128,7 @@ describe('Register', function () {
         ]);
 
         $response->assertSessionHasErrors('password');
+        $this->assertGuest();
     });
 
     it('fails when required field is missing', function (string $field) {
@@ -125,5 +143,6 @@ describe('Register', function () {
 
         $this->post('/register', $data)
             ->assertSessionHasErrors($field);
+        $this->assertGuest();
     })->with(['name', 'email', 'password']);
 });
