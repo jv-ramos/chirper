@@ -7,6 +7,34 @@ describe('Chirp', function () {
     uses(RefreshDatabase::class);
 
     /*
+    * INDEXING CHIRPS
+    */
+    it('should index chirps successfully', function () {
+        $this->get('/')->assertStatus(200);
+    });
+
+    /*
+ * EDITING CHIRPS
+ */
+    it('should not be able to go to edit page without logging in', function () {
+        $user = User::factory()->create(['name' => 'joao silva', 'email' => 'joaos@exmaple.com', 'password' => 'password123']);
+
+        $chirp = $user->chirps()->create(['message' => 'What is love?']);
+
+        $this->get("/chirps/{$chirp->id}/edit")
+            ->assertRedirect('/login');
+        $this->assertGuest();
+    });
+
+    it('should go to the edit page successfully', function () {
+        $user = User::factory()->create(['name' => 'joao silva', 'email' => 'joaos@exmaple.com', 'password' => 'password123']);
+
+        $chirp = $user->chirps()->create(['message' => 'What is love?']);
+
+        $this->actingAs($user)->get("/chirps/{$chirp->id}/edit")->assertStatus(200);
+    });
+
+    /*
     / CREATING CHIRPS
     */
     it('should fail to post a Chirp if not logged in', function () {
